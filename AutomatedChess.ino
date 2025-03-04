@@ -1,0 +1,257 @@
+#include "Configs.h"
+
+#include "SoundController.h"
+#include "WifiController.h"
+#include "DisplayController.h"
+#include "MultiButtonsController.h"
+#include "MotorController.h"
+#include "ElectromagnetController.h"
+#include "BoardController.h"
+
+#include "Game.h"
+#include "GameSettings.h"
+
+
+// PIN Definitions
+#define BUTTONS_PIN                         36
+#define BUTTON1_PIN                         39
+#define BUTTON2_PIN                         34
+
+#define MOTOR_H_DIR                         5
+#define MOTOR_H_STEP                        18
+#define MOTOR_V_DIR                         15
+#define MOTOR_V_STEP                        4
+
+#define ELECTROMAGNET_PIN                   2
+
+uint8_t MUX_ADDR[4]                      = {13, 19, 14, 27};
+uint8_t MUX_OUTPUTS[4]                    = {26, 25, 33, 32};
+#define MUX_OUTPUT                          23
+
+// Buttons definitions
+#define UP_BUTTON                           0
+#define DOWN_BUTTON                         2
+#define SELECT_BUTTON                       1
+
+// Buttons configs
+int voltageRanges[][2] = {
+    {2600,3000},
+    {1600,2000},
+    {600,1000}
+};
+uint8_t btnCount = ARRAYSIZE(voltageRanges);
+unsigned long buttonCurTime;
+unsigned long buttonLastLoop = 0;
+unsigned int buttonLoopInterval = 400;
+
+WiFiController _WiFiController;
+SoundController _SoundController;
+DisplayController _DisplayController;
+MultiButtonsController _MultiButtonsController(BUTTONS_PIN, btnCount, voltageRanges, 4095);
+MotorController _WhiteMotorController(MOTOR_H_DIR, MOTOR_H_STEP);
+MotorController _BlackMotorController(MOTOR_V_DIR, MOTOR_V_STEP);
+ElectromagnetController _ElectromagnetController(ELECTROMAGNET_PIN);
+BoardController _BoardController(MUX_ADDR, MUX_OUTPUTS, MUX_OUTPUT);
+
+// Game
+GameSettings _GameSettings;
+Game _Game;
+
+void setup() {
+
+    Serial.begin(115200);
+
+    pinMode (ELECTROMAGNET_PIN, OUTPUT);
+    pinMode(BUTTON1_PIN, INPUT);
+    pinMode(BUTTON2_PIN, INPUT);
+
+    _SoundController.setup();
+    _BoardController.setup();
+
+    _DisplayController.setup();
+    _DisplayController.displayWelcomeScreen();
+    delay(100);
+    _SoundController.playStartSound();
+
+    _MultiButtonsController.setup();
+	_MultiButtonsController.setPressCallback(buttonPressCallback);
+	_MultiButtonsController.setReleaseCallback(buttonReleaseCallback);
+
+    delay(3000);
+
+    _WiFiController.setup();
+    _WiFiController.setWebServerCallback(wiFiWebServerCallback);
+    bool resetWifi = _MultiButtonsController.isButtonPressed(1);
+    bool wifiRes = _WiFiController.autoConnect(resetWifi);
+	delay(300);
+	if( wifiRes ) {
+		Serial.println("WiFi Connected");
+	} else {
+        _DisplayController.displayMessage("WiFi ERROR!");
+		Serial.println("WiFi ERROR!");
+	}
+
+    _GameSettings.setParamsSettedCallback(gameParamsSettedCallback);
+    _GameSettings.setMenuChangedCallback(gameMenuChangedCallback);
+    _GameSettings.setRestartGameCallback(gameRestartGameCallback);
+
+    _Game.setGameChangedCallback(gameChangedCallback);
+    _Game.setWhiteTimeoutCallback(whiteTimeoutCallback);
+    _Game.setBlackTimeoutCallback(blackTimeoutCallback);
+
+    _DisplayController.displayMenu(_GameSettings.getMenu());
+}
+
+void loop() {
+    _WiFiController.loop();
+    _MultiButtonsController.loop();
+    //_BoardController.loop();
+    _Game.loop();
+    buttonsLoop();
+    if( _WiFiController.hasChanges() ) {
+        _DisplayController.updateConnectionState(_WiFiController.isConnected());
+        if( _WiFiController.hasLostConnection() ) {
+            _SoundController.playLowSignalSound();
+        }
+    }
+}
+
+void buttonsLoop() {
+    if( digitalRead(BUTTON1_PIN) == HIGH ) {
+        buttonCurTime = millis();
+        if( buttonCurTime - buttonLastLoop >= buttonLoopInterval ) {
+            buttonLastLoop = buttonCurTime;
+            button1Pressed();
+        }
+    }
+    if( digitalRead(BUTTON2_PIN) == HIGH ) {
+        buttonCurTime = millis();
+        if( buttonCurTime - buttonLastLoop >= buttonLoopInterval ) {
+            buttonLastLoop = buttonCurTime;
+            button2Pressed();
+        }
+    }
+}
+
+void button1Pressed() {
+    _Game.startBlackClock();
+}
+
+void button2Pressed() {
+    _Game.startWhiteClock();
+}
+
+void wiFiWebServerCallback () {
+    Serial.println("Entered WebServer mode");
+    _SoundController.playLowSignalSound();
+    _DisplayController.displayWebServerScreen();
+}
+
+void buttonPressCallback(uint buttonId) {
+    Serial.print("Button Press: ");
+	Serial.println(buttonId);
+}
+
+void buttonReleaseCallback(uint buttonId, bool isLongPress) {
+    Serial.print("Button released: ");
+    Serial.println(buttonId);
+
+    if( buttonId == UP_BUTTON ) {
+        prevButton(isLongPress);
+    } else if (buttonId == DOWN_BUTTON) {
+        nextButton(isLongPress);
+    } else if (buttonId == SELECT_BUTTON) {
+        selectButton(isLongPress);
+    }
+    
+}
+
+void gameParamsSettedCallback() {
+    startGame();
+}
+
+void gameMenuChangedCallback() {
+    if( _GameSettings.getMenu().getID() == 0 ) {
+        if( _GameSettings.isClocksSetted() ) {
+            _DisplayController.displayELOSetter(_GameSettings.getELOSetter());
+        } else {
+            _DisplayController.displayClockSetter(_GameSettings.getClockSetter());
+        }
+    } else {
+        _DisplayController.displayMenu(_GameSettings.getMenu());
+    }
+}
+
+void prevButton(bool isLongPress) {
+    if( !_Game.isInGame() && !_Game.isGameFinished() ) {
+        _SoundController.playPieceSound();
+        _GameSettings.prevButton(isLongPress);
+    } else {
+        //_DisplayController.displayBoard(_BoardController);
+        _BoardController.printSerial();
+        Serial.println("Disabled Prev button");
+    }
+}
+
+void nextButton(bool isLongPress) {
+    if( !_Game.isInGame() && !_Game.isGameFinished() ) {
+        _SoundController.playPieceSound();
+        _GameSettings.nextButton(isLongPress);
+    } else {
+        //_DisplayController.displayBoard(_BoardController);
+        _BoardController.printSerial();
+        Serial.println("Disabled Next button");
+    }
+}
+
+void selectButton(bool isLongPress) {
+    if( !_Game.isInGame() ) {
+        _SoundController.playNotification1Sound();
+        if( _Game.isGameFinished() ) {
+            restartGame();
+        } else {
+            _GameSettings.selectButton(isLongPress);
+        }
+    } else if(isLongPress) {
+        pauseGame();
+        _SoundController.playLowSignalSound();
+        _DisplayController.displayMenu(_GameSettings.getMenu());
+    } else {
+        _BlackMotorController.move(T_B, SPEED_SLOW,400);
+        Serial.println("Unactive Select button");
+    }
+}
+
+void gameRestartGameCallback() {
+    restartGame();
+}
+
+void startGame() {
+    _Game.start();
+}
+
+void restartGame() {
+    _GameSettings.restart();
+    _Game.restart();
+    _DisplayController.displayMessage("Reiniciando Juego ...");
+    delay(1000);
+    _DisplayController.displayMenu(_GameSettings.getMenu());
+}
+
+void pauseGame() {
+    _Game.pause();
+}
+
+void gameChangedCallback() {
+    _DisplayController.displayGame(_Game);
+}
+
+void whiteTimeoutCallback() {
+    _SoundController.playTimeoutSound();
+    _Game.gameOver();
+}
+
+void blackTimeoutCallback() {
+    _SoundController.playTimeoutSound();
+    _Game.gameOver();
+}
