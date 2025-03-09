@@ -1,10 +1,10 @@
-#include "DisplayController.h"
+#include "DisplaySSD1306Controller.h"
 
-DisplayController::DisplayController() :
+DisplaySSD1306Controller::DisplaySSD1306Controller() :
     _display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET) {
 }
 
-void DisplayController::setup() {
+void DisplaySSD1306Controller::setup() {
     if(!_display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
         Serial.println(F("SSD1306 allocation failed"));
         for(;;);
@@ -15,25 +15,25 @@ void DisplayController::setup() {
     _display.display();
 }
 
-void DisplayController::displayWelcomeScreen() {
+void DisplaySSD1306Controller::displayWelcomeScreen() {
     _display.clearDisplay();
     _drawCentreBitmap(epd_bitmap_Splash, 58, 62);
     _display.display();
 }
 
-void DisplayController::displayWebServerScreen() {
+void DisplaySSD1306Controller::displayWebServerScreen() {
     _display.clearDisplay();
     _drawCentreStringTwoLines("Configurar WiFi:", "\""+String(MD_DEVICE_NAME)+"\"");
     _display.display();
 }
 
-void DisplayController::displayMessage(String message) {
+void DisplaySSD1306Controller::displayMessage(String message) {
     _display.clearDisplay();
     _drawCentreString(message, 1);
     _display.display();
 }
 
-void DisplayController::displayMenu(Menu menu) {
+void DisplaySSD1306Controller::displayMenu(Menu menu) {
     _display.clearDisplay();
 
     _drawHeader(menu.getTitle());
@@ -65,11 +65,11 @@ void DisplayController::displayMenu(Menu menu) {
     updateConnectionState(_isWiFiConnected);
 }
 
-void DisplayController::_drawCentreBitmap(const uint8_t *bitmap, uint8_t width, uint8_t height) {
+void DisplaySSD1306Controller::_drawCentreBitmap(const uint8_t *bitmap, uint8_t width, uint8_t height) {
     _display.drawBitmap((SCREEN_WIDTH - width) / 2, (SCREEN_HEIGHT - height) / 2, bitmap, width, height, WHITE);
 }
 
-void DisplayController::_drawCentreString(const String &buf, uint16_t textSize) {
+void DisplaySSD1306Controller::_drawCentreString(const String &buf, uint16_t textSize) {
     int16_t x1, y1;
     uint16_t width, height;
 
@@ -80,7 +80,7 @@ void DisplayController::_drawCentreString(const String &buf, uint16_t textSize) 
     _display.println(buf);
 }
 
-void DisplayController::_drawCentreStringTwoLines(const String &buf1, const String &buf2) {
+void DisplaySSD1306Controller::_drawCentreStringTwoLines(const String &buf1, const String &buf2) {
     int16_t x1, y1;
     uint16_t width, height;
     uint16_t margin = 2;
@@ -94,7 +94,7 @@ void DisplayController::_drawCentreStringTwoLines(const String &buf1, const Stri
     _display.setCursor((SCREEN_WIDTH - width) / 2, ((SCREEN_HEIGHT + margin) / 2));
     _display.println(buf2);
 }
-void DisplayController::displayClockSetter(ClockSetter clockSetter) {
+void DisplaySSD1306Controller::displayClockSetter(ClockSetter clockSetter) {
     _display.clearDisplay();
     _drawHeader("Configurar Relojes");
 
@@ -148,7 +148,7 @@ void DisplayController::displayClockSetter(ClockSetter clockSetter) {
     updateConnectionState(_isWiFiConnected);
 }
 
-void DisplayController::displayGame(Game game) {
+void DisplaySSD1306Controller::displayGame(Game game) {
     if( game.getGameState() == GAME_WAITING_CLOCK_STATUS ) {
         displayMessage("Inicie reloj blancas");
     } else if( game.hasClocks() ){
@@ -158,7 +158,7 @@ void DisplayController::displayGame(Game game) {
     }
 }
 
-void DisplayController::_drawHeader(String title) {
+void DisplaySSD1306Controller::_drawHeader(String title) {
     _display.drawFastHLine(0, TITLE_HEIGHT, SCREEN_WIDTH, WHITE);
     _display.setTextColor(WHITE);
     _display.setTextSize(1);
@@ -166,7 +166,7 @@ void DisplayController::_drawHeader(String title) {
     _display.println(title);
 }
 
-void DisplayController::_displayClocks() {
+void DisplaySSD1306Controller::_displayClocks() {
     _display.clearDisplay();
 
     _drawHeader("Reloj");
@@ -212,7 +212,7 @@ void DisplayController::_displayClocks() {
     updateConnectionState(_isWiFiConnected);
 }
 
-void DisplayController::displayELOSetter(ELOSetter eloSetter) {
+void DisplaySSD1306Controller::displayELOSetter(ELOSetter eloSetter) {
     _display.clearDisplay();
     _drawHeader("ELO de la AI");
 
@@ -234,7 +234,7 @@ void DisplayController::displayELOSetter(ELOSetter eloSetter) {
     updateConnectionState(_isWiFiConnected);
 }
 
-void DisplayController::_displayHumanVsHumanScreen() {
+void DisplaySSD1306Controller::_displayHumanVsHumanScreen() {
     _display.clearDisplay();
     _drawHeader("En Juego");
     _display.setTextColor(WHITE);
@@ -251,7 +251,7 @@ void DisplayController::_displayHumanVsHumanScreen() {
     updateConnectionState(_isWiFiConnected);
 }
 
-void DisplayController::updateConnectionState(bool isConnected) {
+void DisplaySSD1306Controller::updateConnectionState(bool isConnected) {
     _display.fillRect(116, 1, 11, 7, BLACK);
     if( isConnected ) {
         _display.drawBitmap(116, 1, epd_bitmap_WiFi, 11, 7, WHITE);
@@ -261,22 +261,4 @@ void DisplayController::updateConnectionState(bool isConnected) {
 
     _display.display();
     _isWiFiConnected = isConnected;
-}
-
-void DisplayController::displayBoard(BoardController boardController) {
-    _display.clearDisplay();
-
-    _display.setTextColor(WHITE);
-    _display.setTextSize(1);
-    Serial.println("Draw BOARD");
-    String sq = "";
-    for(uint8_t i=0; i<8 ;i++) {
-        for(uint8_t j=0; j<8 ;j++) {
-            sq += boardController.squareHasPiece(i,j)? "o ": "- ";
-        }
-        _display.setCursor(5, (8*i));
-        _display.println(sq);
-        sq = "";
-    }
-    _display.display();
 }

@@ -37,7 +37,7 @@ void GameSettings::setRestartGameCallback(std::function<void()> restartGameCallb
 }
 
 void GameSettings::prevButton(bool isLongPress) {
-    if( _currentMenu.getID() == 0 ) {
+    if( _currentMenu.getID() == MENU_NO_MENU_ID ) {
         if( isClocksSetted() ) {
             _ELOSetter.prevButton(isLongPress);
         } else {
@@ -50,7 +50,7 @@ void GameSettings::prevButton(bool isLongPress) {
 }
 
 void GameSettings::nextButton(bool isLongPress) {
-    if( _currentMenu.getID() == 0 ) {
+    if( _currentMenu.getID() == MENU_NO_MENU_ID ) {
         if( isClocksSetted() ) {
             _ELOSetter.nextButton(isLongPress);
         } else {
@@ -107,7 +107,7 @@ void GameSettings::_setAIELO() {
 }
 
 void GameSettings::_setMode() {
-    _gameMode = _currentMenu.getSelectedIndex()+1;
+    _gameMode = _currentMenu.getSelectedIndex();
     if( _gameMode == G_MODE_H_C ) {
         _currentMenu = Menu(MENU_HUMAN_COLOR_ID, _humanColorTitle, ARRAYSIZE(_humanColorItems), _humanColorItems);
     } else {
@@ -117,14 +117,14 @@ void GameSettings::_setMode() {
 }
 
 void GameSettings::_setHumanColor() {
-    _humanColor = _currentMenu.getSelectedIndex()+1;
+    _humanColor = _currentMenu.getSelectedIndex();
     if( AI_USE_CLOCKS ) {
         _currentMenu = Menu(MENU_CLOCK_ID, _clockTitle, ARRAYSIZE(_clockItems), _clockItems);
         _menuChangedCallback();
     } else {
         WhiteClock.setValues(0, 0);
         BlackClock.setValues(0, 0);
-        _currentMenu = Menu();
+        _currentMenu = Menu(MENU_NO_MENU_ID);
         _menuChangedCallback();
     }
 }
@@ -146,7 +146,7 @@ void GameSettings::_setClock() {
             _finishConfigurations();
             break;
         case 4:
-            _currentMenu = Menu();
+            _currentMenu = Menu(MENU_NO_MENU_ID);
             _menuChangedCallback();
             break;
         default:

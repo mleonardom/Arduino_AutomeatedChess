@@ -8,17 +8,20 @@
 #include "ChessClock.h"
 #include "ELOSetter.h"
 
-#define MENU_MODE_ID            1
-#define MENU_HUMAN_COLOR_ID     2
-#define MENU_MACHINE_ELO_ID     3
-#define MENU_CLOCK_ID           4
-#define MENU_RESTART_GAME_ID    5
+enum {MENU_NO_MENU_ID, MENU_MODE_ID, MENU_HUMAN_COLOR_ID, MENU_MACHINE_ELO_ID, MENU_CLOCK_ID, MENU_RESTART_GAME_ID};
+// #define MENU_MODE_ID            1
+// #define MENU_HUMAN_COLOR_ID     2
+// #define MENU_MACHINE_ELO_ID     3
+// #define MENU_CLOCK_ID           4
+// #define MENU_RESTART_GAME_ID    5
 
-#define G_MODE_H_H              1
-#define G_MODE_H_C              2
+enum {G_MODE_H_H, G_MODE_H_C};
+// #define G_MODE_H_H              1
+// #define G_MODE_H_C              2
 
-#define G_HUMAN_COLOR_WHITE     1
-#define G_HUMAN_COLOR_BLACK     2
+enum {G_HUMAN_COLOR_WHITE, G_HUMAN_COLOR_BLACK};
+// #define G_HUMAN_COLOR_WHITE     1
+// #define G_HUMAN_COLOR_BLACK     2
 
 class GameSettings {
 
@@ -27,9 +30,9 @@ class GameSettings {
         uint8_t _humanColor = 0;
         uint16_t _aiELO = 0;
 
-        const String _modeTitle = "Selecciona Modo";
+        const String _modeTitle = "Modo";
         const String _humanColorTitle = "Elige color";
-        const String _clockTitle = "Configurar Reloj";
+        const String _clockTitle = "Relojes";
         const String _restartGameTitle = "Reiniciar Juego?";
 
         const String _modeItems[2] = {"Humano Vs Humano", "Humano Vs AI"};

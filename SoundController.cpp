@@ -38,11 +38,15 @@ void SoundController::playCheckmateSound() {
 }
 
 void SoundController::playPieceSound() {
-    play(PIECE_SOUND_INDEX);
+    play(PIECE_2_SOUND_INDEX);
 }
 
 void SoundController::playNotification1Sound() {
     play(NOTIFICVATION1_SOUND_INDEX);
+}
+
+void SoundController::playSelectUISound() {
+    play(SELECT_UI_SOUND_INDEX);
 }
 
 void SoundController::playLowSignalSound() {

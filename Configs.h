@@ -1,6 +1,10 @@
 #ifndef Configs_h
 #define Configs_h
 
+// IMPORTANT !!!!!
+// Comment to use SSD1306 display instead
+//#define USE_I2C
+
 // USEFULL
 #define ARRAYSIZE(arg) ((unsigned int) (sizeof (arg) / sizeof (arg [0])))
 

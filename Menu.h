@@ -12,6 +12,7 @@ class Menu {
         uint8_t _selectedItem;
     public:
         Menu();
+        Menu(uint8_t ID);
         Menu(uint8_t ID, const String title, uint8_t itemsCount, const String items[]);
         void setPorperties(uint8_t ID, const String title, uint8_t itemsCount, const String items[]);
         String getTitle();

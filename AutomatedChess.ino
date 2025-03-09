@@ -2,7 +2,6 @@
 
 #include "SoundController.h"
 #include "WifiController.h"
-#include "DisplayController.h"
 #include "MultiButtonsController.h"
 #include "MotorController.h"
 #include "ElectromagnetController.h"
@@ -11,6 +10,11 @@
 #include "Game.h"
 #include "GameSettings.h"
 
+#ifdef USE_I2C
+#include "DisplayI2cController.h"
+#else
+#include "DisplaySSD1306Controller.h"
+#endif
 
 // PIN Definitions
 #define BUTTONS_PIN                         36
@@ -24,9 +28,8 @@
 
 #define ELECTROMAGNET_PIN                   2
 
-uint8_t MUX_ADDR[4]                      = {13, 19, 14, 27};
-uint8_t MUX_OUTPUTS[4]                    = {26, 25, 33, 32};
-#define MUX_OUTPUT                          23
+uint8_t MUX_ADDR[4]                         = {23, 19, 14, 27};
+uint8_t MUX_OUTPUTS[4]                      = {26, 25, 33, 32};
 
 // Buttons definitions
 #define UP_BUTTON                           0
@@ -46,12 +49,16 @@ unsigned int buttonLoopInterval = 400;
 
 WiFiController _WiFiController;
 SoundController _SoundController;
-DisplayController _DisplayController;
 MultiButtonsController _MultiButtonsController(BUTTONS_PIN, btnCount, voltageRanges, 4095);
-MotorController _WhiteMotorController(MOTOR_H_DIR, MOTOR_H_STEP);
-MotorController _BlackMotorController(MOTOR_V_DIR, MOTOR_V_STEP);
+MotorController _MotorController(MOTOR_H_DIR, MOTOR_H_STEP, MOTOR_V_DIR, MOTOR_V_STEP);
 ElectromagnetController _ElectromagnetController(ELECTROMAGNET_PIN);
-BoardController _BoardController(MUX_ADDR, MUX_OUTPUTS, MUX_OUTPUT);
+BoardController _BoardController(MUX_ADDR, MUX_OUTPUTS);
+
+#ifdef USE_I2C
+DisplayI2cController _DisplayController;
+#else
+DisplaySSD1306Controller _DisplayController;
+#endif
 
 // Game
 GameSettings _GameSettings;
@@ -60,8 +67,8 @@ Game _Game;
 void setup() {
 
     Serial.begin(115200);
+    while (!Serial) { }
 
-    pinMode (ELECTROMAGNET_PIN, OUTPUT);
     pinMode(BUTTON1_PIN, INPUT);
     pinMode(BUTTON2_PIN, INPUT);
 
@@ -105,7 +112,6 @@ void setup() {
 void loop() {
     _WiFiController.loop();
     _MultiButtonsController.loop();
-    //_BoardController.loop();
     _Game.loop();
     buttonsLoop();
     if( _WiFiController.hasChanges() ) {
@@ -187,7 +193,6 @@ void prevButton(bool isLongPress) {
         _SoundController.playPieceSound();
         _GameSettings.prevButton(isLongPress);
     } else {
-        //_DisplayController.displayBoard(_BoardController);
         _BoardController.printSerial();
         Serial.println("Disabled Prev button");
     }
@@ -198,7 +203,6 @@ void nextButton(bool isLongPress) {
         _SoundController.playPieceSound();
         _GameSettings.nextButton(isLongPress);
     } else {
-        //_DisplayController.displayBoard(_BoardController);
         _BoardController.printSerial();
         Serial.println("Disabled Next button");
     }
@@ -206,7 +210,7 @@ void nextButton(bool isLongPress) {
 
 void selectButton(bool isLongPress) {
     if( !_Game.isInGame() ) {
-        _SoundController.playNotification1Sound();
+        _SoundController.playSelectUISound();
         if( _Game.isGameFinished() ) {
             restartGame();
         } else {
@@ -217,7 +221,7 @@ void selectButton(bool isLongPress) {
         _SoundController.playLowSignalSound();
         _DisplayController.displayMenu(_GameSettings.getMenu());
     } else {
-        _BlackMotorController.move(T_B, SPEED_SLOW,400);
+        _MotorController.move(T_B, SPEED_SLOW,400);
         Serial.println("Unactive Select button");
     }
 }
@@ -233,7 +237,7 @@ void startGame() {
 void restartGame() {
     _GameSettings.restart();
     _Game.restart();
-    _DisplayController.displayMessage("Reiniciando Juego ...");
+    _DisplayController.displayMessage("Reiniciando Juego...");
     delay(1000);
     _DisplayController.displayMenu(_GameSettings.getMenu());
 }

@@ -1,5 +1,5 @@
-#ifndef DisplayController_h
-#define DisplayController_h
+#ifndef DisplaySSD1306Controller_h
+#define DisplaySSD1306Controller_h
 
 #include "Arduino.h"
 #include <SPI.h>
@@ -26,7 +26,7 @@
 
 #define CLOCK_SETTER_MARGIN_TOP     15
 
-class DisplayController {
+class DisplaySSD1306Controller {
     private:
         Adafruit_SSD1306 _display;
         bool _isWiFiConnected = false;
@@ -38,7 +38,7 @@ class DisplayController {
         void _displayHumanVsHumanScreen();
 
     public:
-        DisplayController();
+        DisplaySSD1306Controller();
         void setup();
         void displayWelcomeScreen();
         void displayWebServerScreen();
@@ -48,7 +48,6 @@ class DisplayController {
         void displayELOSetter(ELOSetter eloSetter);
         void displayGame(Game game);
         void updateConnectionState(bool isConnected);
-        void displayBoard(BoardController boardController);
 };
 
 #endif

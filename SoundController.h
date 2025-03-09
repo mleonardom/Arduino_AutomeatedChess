@@ -15,6 +15,10 @@
 #define NOTIFICVATION1_SOUND_INDEX          5
 #define LOW_SIGNAL_SOUND_INDEX              6
 #define TIMEOUT_SOUND_INDEX                 7
+#define CAPTURE_SOUND_INDEX                 8
+#define BOARD_START_SOUND_INDEX             9
+#define SELECT_UI_SOUND_INDEX               10
+#define PIECE_2_SOUND_INDEX                 11
 
 class SoundController {
 
@@ -33,6 +37,7 @@ class SoundController {
         void playNotification1Sound();
         void playLowSignalSound();
         void playTimeoutSound();
+        void playSelectUISound();
 
 };
 

@@ -7,11 +7,12 @@
 #include "Menu.h"
 #include "ChessClock.h"
 
-#define GAME_UNSET_SATUS            0
-#define GAME_PLAYING_STATUS         1
-#define GAME_PAUSED_STATUS          2
-#define GAME_WAITING_CLOCK_STATUS   3
-#define GAME_FINISHED_STATUS        4
+enum {GAME_UNSET_SATUS, GAME_PLAYING_STATUS, GAME_PAUSED_STATUS, GAME_WAITING_CLOCK_STATUS, GAME_FINISHED_STATUS};
+// #define GAME_UNSET_SATUS            0
+// #define GAME_PLAYING_STATUS         1
+// #define GAME_PAUSED_STATUS          2
+// #define GAME_WAITING_CLOCK_STATUS   3
+// #define GAME_FINISHED_STATUS        4
 
 class Game {
 

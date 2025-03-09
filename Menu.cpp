@@ -3,6 +3,10 @@
 Menu::Menu() {
 }
 
+Menu::Menu(uint8_t ID) {
+    _ID = ID;
+}
+
 Menu::Menu(uint8_t ID, const String title, uint8_t itemsCount, const String items[]) {
     setPorperties(ID, title, itemsCount, items);
 }

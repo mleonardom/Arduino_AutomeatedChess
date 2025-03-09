@@ -5,8 +5,9 @@
 
 #include "Configs.h"
 
-#define BTN_READ_PHASE_1ST_PASS  0
-#define BTN_READ_PHASE_2ND_PASS  1
+enum {BTN_READ_PHASE_1ST_PASS, BTN_READ_PHASE_2ND_PASS};
+// #define BTN_READ_PHASE_1ST_PASS  0
+// #define BTN_READ_PHASE_2ND_PASS  1
 
 class MultiButtonsController {
     private:
