@@ -3,6 +3,9 @@
 
 #include "Arduino.h"
 
+#include "MotorController.h"
+#include "ElectromagnetController.h"
+
 class BoardController {
 
     private:
@@ -27,11 +30,13 @@ class BoardController {
             {1, 0, 1, 1},
             {0, 1, 1, 1},
             {1, 1, 1, 1}
-          };
+        };
+
+        MotorController _MotorController;
+        ElectromagnetController _ElectromagnetController;
     public:
-        BoardController(uint8_t MUXAddr[], uint8_t MUXOutputs[]);
+        BoardController(uint8_t MUXAddr[], uint8_t MUXOutputs[], uint8_t HdirPin, uint8_t HstepPin, uint8_t VdirPin, uint8_t VstepPin, uint8_t electromagnetPin);
         void setup();
-        void loop();
         void readValues();
         bool squareHasPiece(uint8_t row, uint8_t column);
         void printSerial();

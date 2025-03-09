@@ -3,8 +3,6 @@
 #include "SoundController.h"
 #include "WifiController.h"
 #include "MultiButtonsController.h"
-#include "MotorController.h"
-#include "ElectromagnetController.h"
 #include "BoardController.h"
 
 #include "Game.h"
@@ -28,7 +26,7 @@
 
 #define ELECTROMAGNET_PIN                   2
 
-uint8_t MUX_ADDR[4]                         = {23, 19, 14, 27};
+uint8_t MUX_ADDR[4]                         = {23, 19, 14, 27}; // PCB is maked for {13, 19, 14, 27}, make a manual wire on PCB to avoid Screen errors
 uint8_t MUX_OUTPUTS[4]                      = {26, 25, 33, 32};
 
 // Buttons definitions
@@ -50,9 +48,7 @@ unsigned int buttonLoopInterval = 400;
 WiFiController _WiFiController;
 SoundController _SoundController;
 MultiButtonsController _MultiButtonsController(BUTTONS_PIN, btnCount, voltageRanges, 4095);
-MotorController _MotorController(MOTOR_H_DIR, MOTOR_H_STEP, MOTOR_V_DIR, MOTOR_V_STEP);
-ElectromagnetController _ElectromagnetController(ELECTROMAGNET_PIN);
-BoardController _BoardController(MUX_ADDR, MUX_OUTPUTS);
+BoardController _BoardController(MUX_ADDR, MUX_OUTPUTS, MOTOR_H_DIR, MOTOR_H_STEP, MOTOR_V_DIR, MOTOR_V_STEP, ELECTROMAGNET_PIN);
 
 #ifdef USE_I2C
 DisplayI2cController _DisplayController;
@@ -193,7 +189,6 @@ void prevButton(bool isLongPress) {
         _SoundController.playPieceSound();
         _GameSettings.prevButton(isLongPress);
     } else {
-        _BoardController.printSerial();
         Serial.println("Disabled Prev button");
     }
 }
@@ -203,7 +198,6 @@ void nextButton(bool isLongPress) {
         _SoundController.playPieceSound();
         _GameSettings.nextButton(isLongPress);
     } else {
-        _BoardController.printSerial();
         Serial.println("Disabled Next button");
     }
 }
@@ -221,7 +215,6 @@ void selectButton(bool isLongPress) {
         _SoundController.playLowSignalSound();
         _DisplayController.displayMenu(_GameSettings.getMenu());
     } else {
-        _MotorController.move(T_B, SPEED_SLOW,400);
         Serial.println("Unactive Select button");
     }
 }

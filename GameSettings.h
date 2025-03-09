@@ -9,19 +9,10 @@
 #include "ELOSetter.h"
 
 enum {MENU_NO_MENU_ID, MENU_MODE_ID, MENU_HUMAN_COLOR_ID, MENU_MACHINE_ELO_ID, MENU_CLOCK_ID, MENU_RESTART_GAME_ID};
-// #define MENU_MODE_ID            1
-// #define MENU_HUMAN_COLOR_ID     2
-// #define MENU_MACHINE_ELO_ID     3
-// #define MENU_CLOCK_ID           4
-// #define MENU_RESTART_GAME_ID    5
 
 enum {G_MODE_H_H, G_MODE_H_C};
-// #define G_MODE_H_H              1
-// #define G_MODE_H_C              2
 
 enum {G_HUMAN_COLOR_WHITE, G_HUMAN_COLOR_BLACK};
-// #define G_HUMAN_COLOR_WHITE     1
-// #define G_HUMAN_COLOR_BLACK     2
 
 class GameSettings {
 

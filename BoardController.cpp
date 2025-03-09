@@ -1,14 +1,14 @@
 #include "BoardController.h"
 
-BoardController::BoardController(uint8_t MUXAddr[], uint8_t MUXOutputs[]) {
+BoardController::BoardController(uint8_t MUXAddr[], uint8_t MUXOutputs[], uint8_t HdirPin, uint8_t HstepPin, uint8_t VdirPin, uint8_t VstepPin, uint8_t electromagnetPin) :
+_MotorController(HdirPin, HstepPin, VdirPin, VstepPin),
+_ElectromagnetController(electromagnetPin) {
     _MUXAddr = MUXAddr;
     _MUXOutputs = MUXOutputs;
 }
 
 void BoardController::setup() {
     for (byte i = 0; i < 4; i++) {
-        Serial.print("Pinout: ");
-        Serial.println(_MUXAddr[i]);
         pinMode (_MUXAddr[i], OUTPUT);
         digitalWrite(_MUXAddr[i], LOW);
     }
@@ -19,9 +19,6 @@ void BoardController::setup() {
         digitalWrite(_MUXOutputs[i], LOW);
         pinMode (_MUXOutputs[i], INPUT);
     }
-}
-
-void BoardController::loop() {
 }
 
 void BoardController::readValues() {
