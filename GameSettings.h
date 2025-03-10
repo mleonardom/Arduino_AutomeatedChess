@@ -65,4 +65,6 @@ class GameSettings {
 
 };
 
+extern GameSettings _GameSettings;
+
 #endif

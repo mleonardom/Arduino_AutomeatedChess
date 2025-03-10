@@ -1,5 +1,7 @@
 #include "GameSettings.h"
 
+GameSettings _GameSettings;
+
 GameSettings::GameSettings() {
     _currentMenu = Menu(MENU_MODE_ID, _modeTitle, ARRAYSIZE(_modeItems), _modeItems);
 }

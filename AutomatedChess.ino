@@ -26,7 +26,8 @@
 
 #define ELECTROMAGNET_PIN                   2
 
-uint8_t MUX_ADDR[4]                         = {23, 19, 14, 27}; // PCB is maked for {13, 19, 14, 27}, make a manual wire on PCB to avoid Screen errors
+// PCB is maked for {13, 19, 14, 27}, make a manual wire on PCB to avoid Screen errors
+uint8_t MUX_ADDR[4]                         = {23, 19, 14, 27};
 uint8_t MUX_OUTPUTS[4]                      = {26, 25, 33, 32};
 
 // Buttons definitions
@@ -48,7 +49,7 @@ unsigned int buttonLoopInterval = 400;
 WiFiController _WiFiController;
 SoundController _SoundController;
 MultiButtonsController _MultiButtonsController(BUTTONS_PIN, btnCount, voltageRanges, 4095);
-BoardController _BoardController(MUX_ADDR, MUX_OUTPUTS, MOTOR_H_DIR, MOTOR_H_STEP, MOTOR_V_DIR, MOTOR_V_STEP, ELECTROMAGNET_PIN);
+BoardController _BoardController(BUTTON1_PIN, BUTTON2_PIN, MUX_ADDR, MUX_OUTPUTS, MOTOR_H_DIR, MOTOR_H_STEP, MOTOR_V_DIR, MOTOR_V_STEP, ELECTROMAGNET_PIN);
 
 #ifdef USE_I2C
 DisplayI2cController _DisplayController;
@@ -57,7 +58,6 @@ DisplaySSD1306Controller _DisplayController;
 #endif
 
 // Game
-GameSettings _GameSettings;
 Game _Game;
 
 void setup() {
@@ -97,7 +97,6 @@ void setup() {
     _GameSettings.setParamsSettedCallback(gameParamsSettedCallback);
     _GameSettings.setMenuChangedCallback(gameMenuChangedCallback);
     _GameSettings.setRestartGameCallback(gameRestartGameCallback);
-
     _Game.setGameChangedCallback(gameChangedCallback);
     _Game.setWhiteTimeoutCallback(whiteTimeoutCallback);
     _Game.setBlackTimeoutCallback(blackTimeoutCallback);
@@ -224,6 +223,10 @@ void gameRestartGameCallback() {
 }
 
 void startGame() {
+    if( _GameSettings.getGameMode() == G_MODE_H_C ) {
+        _DisplayController.displayMessage("Calibrando ...");
+        _BoardController.calibrate();
+    }
     _Game.start();
 }
 

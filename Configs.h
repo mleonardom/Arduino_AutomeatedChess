@@ -9,7 +9,7 @@
 #define ARRAYSIZE(arg) ((unsigned int) (sizeof (arg) / sizeof (arg [0])))
 
 // BOARD
-#define SQUARE_SIZE                         100
+#define SQUARE_SIZE                         44
 
 // MOTORS
 #define SPEED_SLOW                          3000

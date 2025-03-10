@@ -148,13 +148,15 @@ void DisplaySSD1306Controller::displayClockSetter(ClockSetter clockSetter) {
     updateConnectionState(_isWiFiConnected);
 }
 
-void DisplaySSD1306Controller::displayGame(Game game) {
+void DisplaySSD1306Controller::displayGame(Game &game) {
     if( game.getGameState() == GAME_WAITING_CLOCK_STATUS ) {
         displayMessage("Inicie reloj blancas");
     } else if( game.hasClocks() ){
         _displayClocks();
-    } else {
+    } else if( _GameSettings.getGameMode() == G_MODE_H_H ){
         _displayHumanVsHumanScreen();
+    } else if( _GameSettings.getGameMode() == G_MODE_H_C ){
+        _displayHumanVsAIScreen(game);
     }
 }
 
@@ -247,6 +249,16 @@ void DisplaySSD1306Controller::_displayHumanVsHumanScreen() {
 
     _display.drawBitmap(12, 25, epd_bitmap_Human, 36, 39, WHITE);
     _display.drawBitmap(80, 25, epd_bitmap_Human, 36, 39, WHITE);
+
+    updateConnectionState(_isWiFiConnected);
+}
+
+void DisplaySSD1306Controller::_displayHumanVsAIScreen(Game &game) {
+
+    _display.clearDisplay();
+    _drawHeader("En Juego");
+
+    _drawCentreString("En Juego", 1);
 
     updateConnectionState(_isWiFiConnected);
 }

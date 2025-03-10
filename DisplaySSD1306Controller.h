@@ -36,6 +36,7 @@ class DisplaySSD1306Controller {
         void _displayClocks();
         void _drawHeader(String title);
         void _displayHumanVsHumanScreen();
+        void _displayHumanVsAIScreen(Game &game);
 
     public:
         DisplaySSD1306Controller();
@@ -46,7 +47,7 @@ class DisplaySSD1306Controller {
         void displayMenu(Menu menu);
         void displayClockSetter(ClockSetter clockSetter);
         void displayELOSetter(ELOSetter eloSetter);
-        void displayGame(Game game);
+        void displayGame(Game &game);
         void updateConnectionState(bool isConnected);
 };
 

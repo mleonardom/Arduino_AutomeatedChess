@@ -35,11 +35,20 @@ class BoardController {
         MotorController _MotorController;
         ElectromagnetController _ElectromagnetController;
     public:
-        BoardController(uint8_t MUXAddr[], uint8_t MUXOutputs[], uint8_t HdirPin, uint8_t HstepPin, uint8_t VdirPin, uint8_t VstepPin, uint8_t electromagnetPin);
+        BoardController(uint8_t HButtonPin, 
+            uint8_t VButtonPin, 
+            uint8_t MUXAddr[], 
+            uint8_t MUXOutputs[], 
+            uint8_t HdirPin, 
+            uint8_t HstepPin, 
+            uint8_t VdirPin, 
+            uint8_t VstepPin, 
+            uint8_t electromagnetPin);
         void setup();
         void readValues();
         bool squareHasPiece(uint8_t row, uint8_t column);
         void printSerial();
+        void calibrate();
 
 };
 

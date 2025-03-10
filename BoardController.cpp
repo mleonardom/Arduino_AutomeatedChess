@@ -1,7 +1,16 @@
 #include "BoardController.h"
 
-BoardController::BoardController(uint8_t MUXAddr[], uint8_t MUXOutputs[], uint8_t HdirPin, uint8_t HstepPin, uint8_t VdirPin, uint8_t VstepPin, uint8_t electromagnetPin) :
-_MotorController(HdirPin, HstepPin, VdirPin, VstepPin),
+BoardController::BoardController(
+    uint8_t HButtonPin, 
+    uint8_t VButtonPin, 
+    uint8_t MUXAddr[], 
+    uint8_t MUXOutputs[], 
+    uint8_t HdirPin, 
+    uint8_t HstepPin, 
+    uint8_t VdirPin, 
+    uint8_t VstepPin, 
+    uint8_t electromagnetPin) :
+_MotorController(HButtonPin, VButtonPin, HdirPin, HstepPin, VdirPin, VstepPin),
 _ElectromagnetController(electromagnetPin) {
     _MUXAddr = MUXAddr;
     _MUXOutputs = MUXOutputs;
@@ -57,4 +66,8 @@ void BoardController::printSerial() {
         Serial.println();
     }
     Serial.println("------------------------------");
+}
+
+void BoardController::calibrate() {
+    _MotorController.calibrate();
 }
