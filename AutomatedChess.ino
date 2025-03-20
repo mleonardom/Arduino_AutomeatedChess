@@ -100,6 +100,8 @@ void setup() {
     _Game.setGameChangedCallback(gameChangedCallback);
     _Game.setWhiteTimeoutCallback(whiteTimeoutCallback);
     _Game.setBlackTimeoutCallback(blackTimeoutCallback);
+    _Game.setAIMoveCallback(AImoveCallback);
+
 
     _DisplayController.displayMenu(_GameSettings.getMenu());
 }
@@ -254,4 +256,10 @@ void whiteTimeoutCallback() {
 void blackTimeoutCallback() {
     _SoundController.playTimeoutSound();
     _Game.gameOver();
+}
+
+void AImoveCallback(String move) {
+    Serial.print("AI moves to: ");
+    Serial.println(move);
+    _BoardController.moveToString(move);
 }

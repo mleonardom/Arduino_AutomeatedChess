@@ -49,6 +49,9 @@ class BoardController {
         bool squareHasPiece(uint8_t row, uint8_t column);
         void printSerial();
         void calibrate();
+        void moveToString(String move);
+        // Temporal
+        void turnEM(bool isOn);
 
 };
 

@@ -61,6 +61,7 @@ class GameSettings {
         uint8_t getGameMode();
         uint16_t getAIELO();
         uint8_t getHumanColor();
+        String getHumanColorString();
         void restart();
 
 };

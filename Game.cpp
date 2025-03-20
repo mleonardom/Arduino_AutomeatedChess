@@ -41,8 +41,15 @@ void Game::setBlackTimeoutCallback(std::function<void()> blackTimeoutCallback) {
     BlackClock.setTimeoutCallback(blackTimeoutCallback);
 }
 
+void Game::setAIMoveCallback(std::function<void(String)> AImoveCallback) {
+    _AImoveCallback = AImoveCallback;
+}
+
 bool Game::isInGame() {
-    return _gameState == GAME_PLAYING_STATUS || _gameState == GAME_WAITING_CLOCK_STATUS;
+    return _gameState == GAME_PLAYING_STATUS || 
+    _gameState == GAME_WAITING_CLOCK_STATUS || 
+    _gameState == GAME_WAITING_USER_MOVE ||
+    _gameState == GAME_AI_THINKING;
 }
 
 bool Game::isGameFinished() {
@@ -60,6 +67,16 @@ void Game::pause() {
 
 void Game::start() {
     _gameState = hasClocks()? GAME_WAITING_CLOCK_STATUS : GAME_PLAYING_STATUS;
+    if( _GameSettings.getGameMode() == G_MODE_H_C ) {
+        _gameState = GAME_AI_THINKING;
+        _gameChangedCallback();
+        String move = _RestController.initGame();
+        if( move != NULL && move != "" ) {
+            _AImoveCallback(move);
+        } else {
+            _gameState = GAME_WAITING_USER_MOVE;
+        }
+    }
     _gameChangedCallback();
 }
 

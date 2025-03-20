@@ -2,7 +2,6 @@
 #define WiFiController_h
 
 #include <WiFiManager.h>
-#include <HTTPClient.h>
 
 #include "Configs.h"
 

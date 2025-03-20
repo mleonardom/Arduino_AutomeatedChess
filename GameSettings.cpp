@@ -94,6 +94,10 @@ uint8_t GameSettings::getHumanColor() {
     return _humanColor;
 }
 
+String GameSettings::getHumanColorString() {
+    return _humanColor == G_HUMAN_COLOR_WHITE? "WHITE": "BLACK";
+}
+
 uint16_t GameSettings::getAIELO() {
     return _aiELO;
 }

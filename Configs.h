@@ -27,4 +27,7 @@
 // GAME
 #define AI_USE_CLOCKS                       false
 
+// AI SERVER DATA
+#define AI_TIMOUT                           30000
+
 #endif

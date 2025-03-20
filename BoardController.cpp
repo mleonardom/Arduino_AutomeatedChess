@@ -71,3 +71,29 @@ void BoardController::printSerial() {
 void BoardController::calibrate() {
     _MotorController.calibrate();
 }
+
+void BoardController::moveToString(String move) {
+    int departure_coord_X = move[0] - 'a' + 1;
+    int departure_coord_Y = move[1] - '0';
+    int arrival_coord_X = move[2] - 'a' + 1;
+    int arrival_coord_Y = move[3] - '0';
+
+    Serial.print(move);
+    Serial.print(": ");
+    Serial.print(departure_coord_X);
+    Serial.print(",");
+    Serial.print(departure_coord_Y);
+    Serial.print("->");
+    Serial.print(arrival_coord_X);
+    Serial.print(",");
+    Serial.print(arrival_coord_Y);
+}
+
+// Temporal
+void BoardController::turnEM(bool isOn) {
+    if( isOn ) {
+        _ElectromagnetController.turnOn();
+    } else {
+        _ElectromagnetController.turnOff();
+    }
+}

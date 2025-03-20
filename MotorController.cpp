@@ -15,16 +15,16 @@ MotorController::MotorController(uint8_t HButtonPin, uint8_t VButtonPin, uint8_t
 
 void MotorController::calibrate() {
     while (digitalRead(_HButtonPin) == LOW) {
-        move(B_T, SPEED_SLOW, CALIBRATION_DISTANCE);
+        move(R_L, SPEED_SLOW, CALIBRATION_DISTANCE);
     }
     Serial.println("Calibrated H");
     while (digitalRead(_VButtonPin) == LOW) {
-        move(L_R, SPEED_SLOW, CALIBRATION_DISTANCE);
+        move(B_T, SPEED_SLOW, CALIBRATION_DISTANCE);
     }
     Serial.println("Calibrated V");
 
     //  Rapid displacements up to the Black start position (e7)
-    move(R_L, SPEED_FAST, TROLLEY_START_POSITION_X);
+    move(L_R, SPEED_FAST, TROLLEY_START_POSITION_X);
     move(T_B, SPEED_FAST, TROLLEY_START_POSITION_Y);
     delay(500);
 }
@@ -38,18 +38,18 @@ void MotorController::move(byte direction, int speed, float distance) {
     else step_number = distance * SQUARE_SIZE;
 
     //  Direction of the motor rotation
-    if (direction == R_L || direction == T_B || direction == RL_TB) digitalWrite(_HDirPin, HIGH);
+    if (direction == T_B || direction == R_L || direction == RL_TB) digitalWrite(_HDirPin, HIGH);
     else digitalWrite(_HDirPin, LOW);
-    if (direction == B_T || direction == R_L || direction == RL_BT) digitalWrite(_VDirPin, HIGH);
+    if (direction == T_B || direction == L_R || direction == LR_TB) digitalWrite(_VDirPin, HIGH);
     else digitalWrite(_VDirPin, LOW);
 
     //  Active the motors
     for (int x = 0; x < step_number; x++) {
 
-        if( direction != T_B && direction != B_T ) {
+        if( direction != LR_TB && direction != RL_BT ) {
             digitalWrite(_HStepPin, HIGH);
         }
-        if( direction != L_R && direction != R_L ) {
+        if( direction != LR_BT && direction != RL_TB ) {
             digitalWrite(_VStepPin, HIGH);
         }
         delayMicroseconds(speed);
