@@ -5,13 +5,12 @@
 
 class ElectromagnetController {
     private:
-        uint8_t _pin;
-        uint8_t _outputLevel;
+        uint8_t _pin1, _pin2;
     public:
-        ElectromagnetController(uint8_t pin);
-        void turnOn();
+        ElectromagnetController(uint8_t pin1, uint8_t pin2);
+        void turnNorth();
+        void turnSouth();
         void turnOff();
-        bool isTurnedOn();
 };
 
 #endif

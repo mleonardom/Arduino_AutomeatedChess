@@ -9,9 +9,10 @@ BoardController::BoardController(
     uint8_t HstepPin, 
     uint8_t VdirPin, 
     uint8_t VstepPin, 
-    uint8_t electromagnetPin) :
+    uint8_t electromagnetPin1,
+    uint8_t electromagnetPin2) :
 _MotorController(HButtonPin, VButtonPin, HdirPin, HstepPin, VdirPin, VstepPin),
-_ElectromagnetController(electromagnetPin) {
+_ElectromagnetController(electromagnetPin1, electromagnetPin2) {
     _MUXAddr = MUXAddr;
     _MUXOutputs = MUXOutputs;
 }
@@ -30,24 +31,32 @@ void BoardController::setup() {
     }
 }
 
+void BoardController::loop() {
+
+}
+
+
 void BoardController::readValues() {
-    uint8_t column = 0;
     uint8_t row = 0;
+    uint8_t column = 0;
 
     for (byte i = 0; i < 4; i++) {
+        if( i < 2 ) column = 0;
+        else column = 7;
         for (byte j = 0; j < 16; j++) {
             for (byte k = 0; k < 4; k++) {
                 digitalWrite(_MUXAddr[k], _MUX_CHANNEL[j][k]);
             }
-            _reedSensorRecord[column][row] = digitalRead(_MUXOutputs[i]);
-            row++;
+            _reedSensorRecord[row][column] = digitalRead(_MUXOutputs[i]);
+            if( i < 2 ) column ++;
+            else column --;
             if (j == 7) {
-                column++;
-                row = 0;
+                row++;
+                if( i < 2 ) column = 0;
+                else column = 7;
             }
         }
-        column ++;
-        row = 0;
+        row ++;
     }
 }
 
@@ -58,8 +67,8 @@ bool BoardController::squareHasPiece(uint8_t row, uint8_t column) {
 
 void BoardController::printSerial() {
     readValues();
-    for(int i = 0; i < 8; i ++){
-        for(int j = 0; j < 8; j ++){
+    for(int i = 7; i >= 0; i --){
+        for(int j = 7; j >= 0; j --){
             Serial.print(_reedSensorRecord[i][j]);
             Serial.print(" ");
         }
@@ -90,10 +99,15 @@ void BoardController::moveToString(String move) {
 }
 
 // Temporal
-void BoardController::turnEM(bool isOn) {
-    if( isOn ) {
-        _ElectromagnetController.turnOn();
+void BoardController::turnEM(uint8_t step) {
+    if( step == 1 ) {
+        Serial.println("Testing North");
+        _ElectromagnetController.turnNorth();
+    } else if( step == 2 ) {
+        Serial.println("Testing South");
+        _ElectromagnetController.turnSouth();
     } else {
+        Serial.println("Testing OFF");
         _ElectromagnetController.turnOff();
     }
 }

@@ -8,27 +8,24 @@
 #include "Game.h"
 #include "GameSettings.h"
 
-#ifdef USE_I2C
-#include "DisplayI2cController.h"
-#else
 #include "DisplaySSD1306Controller.h"
-#endif
 
 // PIN Definitions
-#define BUTTONS_PIN                         36
-#define BUTTON1_PIN                         39
-#define BUTTON2_PIN                         34
+#define BUTTONS_PIN                         36 //VP
+#define BUTTON1_PIN                         39 //VN
+#define BUTTON2_PIN                         2
 
 #define MOTOR_H_DIR                         5
 #define MOTOR_H_STEP                        18
 #define MOTOR_V_DIR                         15
 #define MOTOR_V_STEP                        4
 
-#define ELECTROMAGNET_PIN                   2
+#define ELECTROMAGNET_PIN_1                 25
+#define ELECTROMAGNET_PIN_2                 26
 
-// PCB is maked for {13, 19, 14, 27}, make a manual wire on PCB to avoid Screen errors
 uint8_t MUX_ADDR[4]                         = {23, 19, 14, 27};
-uint8_t MUX_OUTPUTS[4]                      = {26, 25, 33, 32};
+
+uint8_t MUX_OUTPUTS[4]                      = {32, 33, 35, 34};
 
 // Buttons definitions
 #define UP_BUTTON                           0
@@ -49,13 +46,9 @@ unsigned int buttonLoopInterval = 400;
 WiFiController _WiFiController;
 SoundController _SoundController;
 MultiButtonsController _MultiButtonsController(BUTTONS_PIN, btnCount, voltageRanges, 4095);
-BoardController _BoardController(BUTTON1_PIN, BUTTON2_PIN, MUX_ADDR, MUX_OUTPUTS, MOTOR_H_DIR, MOTOR_H_STEP, MOTOR_V_DIR, MOTOR_V_STEP, ELECTROMAGNET_PIN);
+BoardController _BoardController(BUTTON1_PIN, BUTTON2_PIN, MUX_ADDR, MUX_OUTPUTS, MOTOR_H_DIR, MOTOR_H_STEP, MOTOR_V_DIR, MOTOR_V_STEP, ELECTROMAGNET_PIN_1, ELECTROMAGNET_PIN_2);
 
-#ifdef USE_I2C
-DisplayI2cController _DisplayController;
-#else
 DisplaySSD1306Controller _DisplayController;
-#endif
 
 // Game
 Game _Game;
@@ -110,6 +103,7 @@ void loop() {
     _WiFiController.loop();
     _MultiButtonsController.loop();
     _Game.loop();
+    _BoardController.loop();
     buttonsLoop();
     if( _WiFiController.hasChanges() ) {
         _DisplayController.updateConnectionState(_WiFiController.isConnected());
@@ -137,10 +131,12 @@ void buttonsLoop() {
 }
 
 void button1Pressed() {
+    Serial.println("Button Black Clock (1) pressed");
     _Game.startBlackClock();
 }
 
 void button2Pressed() {
+    Serial.println("Button White Clock (2) pressed");
     _Game.startWhiteClock();
 }
 

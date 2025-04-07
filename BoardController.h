@@ -12,6 +12,7 @@ class BoardController {
         uint8_t *_MUXAddr;
         uint8_t *_MUXOutputs;
         uint8_t _reedSensorRecord[8][8];
+        uint8_t _reedSensorStausMemory[8][8];
 
         const byte _MUX_CHANNEL[16][4] = {
             {0, 0, 0, 0},
@@ -34,6 +35,8 @@ class BoardController {
 
         MotorController _MotorController;
         ElectromagnetController _ElectromagnetController;
+
+        std::function<void(String)> _humanMoveCallback;
     public:
         BoardController(uint8_t HButtonPin, 
             uint8_t VButtonPin, 
@@ -43,15 +46,17 @@ class BoardController {
             uint8_t HstepPin, 
             uint8_t VdirPin, 
             uint8_t VstepPin, 
-            uint8_t electromagnetPin);
+            uint8_t electromagnetPin1,
+            uint8_t electromagnetPin2);
         void setup();
+        void loop();
         void readValues();
         bool squareHasPiece(uint8_t row, uint8_t column);
         void printSerial();
         void calibrate();
         void moveToString(String move);
         // Temporal
-        void turnEM(bool isOn);
+        void turnEM(uint8_t step);
 
 };
 
