@@ -5,6 +5,7 @@
 
 #include "MotorController.h"
 #include "ElectromagnetController.h"
+#include "GameSettings.h"
 
 class BoardController {
 
@@ -13,6 +14,9 @@ class BoardController {
         uint8_t *_MUXOutputs;
         uint8_t _reedSensorRecord[8][8];
         uint8_t _reedSensorStausMemory[8][8];
+
+        //TODO Deleteme
+        uint8_t currentDummyMovement = 0;
 
         const byte _MUX_CHANNEL[16][4] = {
             {0, 0, 0, 0},
@@ -55,6 +59,7 @@ class BoardController {
         void printSerial();
         void calibrate();
         void moveToString(String move);
+        String calculateUserMovement();
         // Temporal
         void turnEM(uint8_t step);
 

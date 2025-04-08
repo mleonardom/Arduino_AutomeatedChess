@@ -130,14 +130,40 @@ void buttonsLoop() {
     }
 }
 
+void makeUserMovement() {
+    String userMove = _BoardController.calculateUserMovement();
+    if( _Game.putUserMovement(userMove) ) {
+        Serial.print("User moves to:");
+        Serial.println(userMove);
+    } else {
+        Serial.println("User move invalid !!!!!");
+    }
+}
+
 void button1Pressed() {
     Serial.println("Button Black Clock (1) pressed");
-    _Game.startBlackClock();
+    if( !_Game.hasClocks() ) {
+        if( _Game.getGameState() != GAME_WAITING_USER_MOVE || _GameSettings.getHumanColor() != G_HUMAN_COLOR_BLACK ) {
+            Serial.println("Button Black Clock Disabled");
+            return;
+        }
+        makeUserMovement();
+    } else {
+        _Game.startBlackClock();
+    }
 }
 
 void button2Pressed() {
     Serial.println("Button White Clock (2) pressed");
-    _Game.startWhiteClock();
+    if( !_Game.hasClocks() ) {
+        if( _Game.getGameState() != GAME_WAITING_USER_MOVE || _GameSettings.getHumanColor() != G_HUMAN_COLOR_WHITE ) {
+            Serial.println("Button White Clock Disabled");
+            return;
+        }
+        makeUserMovement();
+    } else {
+        _Game.startBlackClock();
+    }
 }
 
 void wiFiWebServerCallback () {
@@ -223,7 +249,7 @@ void gameRestartGameCallback() {
 void startGame() {
     if( _GameSettings.getGameMode() == G_MODE_H_C ) {
         _DisplayController.displayMessage("Calibrando ...");
-        _BoardController.calibrate();
+        //_BoardController.calibrate();
     }
     _Game.start();
 }

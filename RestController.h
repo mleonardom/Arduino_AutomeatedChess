@@ -21,6 +21,7 @@ class RestController {
     public:
         RestController();
         String initGame();
+        String userMove(String move);
 };
 
 #endif

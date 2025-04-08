@@ -17,6 +17,7 @@ _ElectromagnetController(electromagnetPin1, electromagnetPin2) {
     _MUXOutputs = MUXOutputs;
 }
 
+
 void BoardController::setup() {
     for (byte i = 0; i < 4; i++) {
         pinMode (_MUXAddr[i], OUTPUT);
@@ -95,7 +96,46 @@ void BoardController::moveToString(String move) {
     Serial.print("->");
     Serial.print(arrival_coord_X);
     Serial.print(",");
-    Serial.print(arrival_coord_Y);
+    Serial.println(arrival_coord_Y);
+    delay(3000);
+}
+
+String BoardController::calculateUserMovement() {
+    String wMovementsDummies[8] = {
+        "d2d4",
+        "c2c3",
+        "e2e3",
+        "b2b3",
+        "f2f3",
+        "a2a3",
+        "g2g3",
+        "h2h3"
+    };
+    String bMovementsDummies[8] = {
+        "d7d5",
+        "c7c6",
+        "e7e6",
+        "b7b6",
+        "f7f6",
+        "a7a6",
+        "g7g6",
+        "h7h6"
+    };
+
+    if(currentDummyMovement >=8) {
+        Serial.println("There are not more dummy movements!!!!");
+        currentDummyMovement=0;
+    }
+
+    String userMove;
+    if( _GameSettings.getHumanColor() == G_HUMAN_COLOR_WHITE ) {
+        userMove = wMovementsDummies[currentDummyMovement];
+    } else {
+        userMove = bMovementsDummies[currentDummyMovement];
+    }
+    currentDummyMovement++;
+
+    return userMove;
 }
 
 // Temporal

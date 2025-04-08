@@ -161,7 +161,7 @@ void DisplaySSD1306Controller::displayGame(Game &game) {
 }
 
 void DisplaySSD1306Controller::_drawHeader(String title) {
-    _display.drawFastHLine(0, TITLE_HEIGHT, SCREEN_WIDTH, WHITE);
+    _display.drawFastHLine(0, TITLE_HEIGHT-1, SCREEN_WIDTH, WHITE);
     _display.setTextColor(WHITE);
     _display.setTextSize(1);
     _display.setCursor(TITLE_X, TITLE_Y);
@@ -256,9 +256,55 @@ void DisplaySSD1306Controller::_displayHumanVsHumanScreen() {
 void DisplaySSD1306Controller::_displayHumanVsAIScreen(Game &game) {
 
     _display.clearDisplay();
-    _drawHeader("En Juego");
+    _drawHeader("Vs Stockfish");
 
-    _drawCentreString("En Juego", 1);
+    if( game.getGameState() == GAME_AI_LOADING ) {
+        _drawCentreString("Conectando ...", 1);
+    } else {
+
+        _display.drawFastVLine(63, TITLE_HEIGHT, (SCREEN_HEIGHT-TITLE_HEIGHT), WHITE);
+
+        if( _GameSettings.getHumanColor() == G_HUMAN_COLOR_WHITE ) {
+            _display.drawBitmap(2, 12, epd_bitmap_BlackPawn, 9, 12, WHITE);
+        } else {
+            _display.drawBitmap(2, 12, epd_bitmap_WhitePawn, 9, 12, WHITE);
+        }
+
+        _display.setTextColor(WHITE);
+        _display.setTextSize(1);
+        _display.setCursor(13, 17);
+        _display.print("ELO:");
+        _display.println(_GameSettings.getAIELO());
+
+        _display.drawFastHLine(0, 26, 64, WHITE);
+
+        // TODO print current Stats
+        /*if( _GameSettings.getHumanColor() == G_HUMAN_COLOR_WHITE ) {
+            _display.drawBitmap(2, 33, epd_bitmap_WhitePawn, 9, 12, WHITE);
+        } else {
+            _display.drawBitmap(2, 33, epd_bitmap_BlackPawn, 9, 12, WHITE);
+        }*/
+
+        uint8_t textX, textY;
+        for(uint8_t i=0; i<game.getCountMovesInHistory(); i++) {
+            textY = 13 + (i*10);
+            _display.fillRect(64, textY-1, 31, 9, WHITE);
+            _display.setTextColor(BLACK);
+            _display.setCursor(65, textY);
+            _display.print(game.getLastMoves(i)[0]);
+            _display.setTextColor(WHITE);
+            _display.setCursor(96, textY);
+            _display.print(game.getLastMoves(i)[1]);
+        }
+
+        _display.setTextColor(WHITE);
+        _display.setCursor(2, 41);
+        if( game.getGameState() == GAME_AI_THINKING ) {
+            _display.print("AI jugando");
+        } else if( game.getGameState() == GAME_WAITING_USER_MOVE ) {
+            _display.print("Tu turno");
+        }
+    }
 
     updateConnectionState(_isWiFiConnected);
 }

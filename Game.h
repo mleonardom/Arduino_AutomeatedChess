@@ -8,7 +8,7 @@
 #include "ChessClock.h"
 #include "RestController.h"
 
-enum {GAME_UNSET_SATUS, GAME_PLAYING_STATUS, GAME_PAUSED_STATUS, GAME_WAITING_CLOCK_STATUS, GAME_FINISHED_STATUS, GAME_WAITING_USER_MOVE, GAME_AI_THINKING};
+enum {GAME_UNSET_SATUS, GAME_PLAYING_STATUS, GAME_PAUSED_STATUS, GAME_WAITING_CLOCK_STATUS, GAME_FINISHED_STATUS, GAME_WAITING_USER_MOVE, GAME_AI_THINKING, GAME_AI_LOADING};
 
 class Game {
 
@@ -18,7 +18,18 @@ class Game {
         std::function<void()> _gameChangedCallback;
         std::function<void(String)> _AImoveCallback;
 
+        uint8_t _movesInHistory;
+        String _lastMoves[5][2] = {
+            {"",""},
+            {"",""},
+            {"",""},
+            {"",""},
+            {"",""}
+        };
+
         RestController _RestController;
+        void _addMove(String move, uint8_t index);
+        void _cleanMoves();
     public:
         Game();
         void loop();
@@ -36,6 +47,9 @@ class Game {
         bool hasClocks();
         void startWhiteClock();
         void startBlackClock();
+        uint8_t getCountMovesInHistory();
+        String* getLastMoves(uint8_t index);
+        bool putUserMovement(String move);
 
 };
 

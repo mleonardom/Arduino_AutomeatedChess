@@ -23,10 +23,43 @@ uint8_t Game::getGameState() {
 
 void Game::restart() {
     if( isInGame() ) {
+        _cleanMoves();
         WhiteClock.stop();
         BlackClock.stop();
     }
     _gameState = GAME_UNSET_SATUS;
+}
+
+void Game::_addMove(String move, uint8_t index) {
+    if( _movesInHistory < 5 ) {
+        if( index==0 ) _movesInHistory++;
+        _lastMoves[_movesInHistory-1][index] = move;
+    } else {
+        if( index == 0 ) {
+            String temp[5][2];
+            for( uint8_t i=0; i<5; i++) {
+                for( uint8_t j=0; j<2; j++) {
+                    temp[i][j] = _lastMoves[i][j];
+                }
+            }
+            for( uint8_t i=0; i<4; i++) {
+                for( uint8_t j=0; j<2; j++) {
+                    _lastMoves[i][j] = _lastMoves[i+1][j];
+                }
+            }
+            _lastMoves[4][1] = "";
+        }
+        _lastMoves[4][index] = move;
+    }
+}
+
+void Game::_cleanMoves() {
+    _movesInHistory = 0;
+    for( uint8_t i=0; i<5; i++) {
+        for( uint8_t j=0; j<2; j++) {
+            _lastMoves[i][j] = "";
+        }
+    }
 }
 
 void Game::setGameChangedCallback(std::function<void()> gameChangedCallback) {
@@ -68,14 +101,17 @@ void Game::pause() {
 void Game::start() {
     _gameState = hasClocks()? GAME_WAITING_CLOCK_STATUS : GAME_PLAYING_STATUS;
     if( _GameSettings.getGameMode() == G_MODE_H_C ) {
-        _gameState = GAME_AI_THINKING;
+        _cleanMoves();
+        _gameState = GAME_AI_LOADING;
         _gameChangedCallback();
         String move = _RestController.initGame();
         if( move != NULL && move != "" ) {
+            _addMove(move, 0);
+            _gameState = GAME_AI_THINKING; //AI is not really thinking but moving the piece
+            _gameChangedCallback();
             _AImoveCallback(move);
-        } else {
-            _gameState = GAME_WAITING_USER_MOVE;
         }
+        _gameState = GAME_WAITING_USER_MOVE;
     }
     _gameChangedCallback();
 }
@@ -109,4 +145,42 @@ void Game::startBlackClock() {
 
 bool Game::hasClocks() {
     return WhiteClock.getInitialMinutes()!=0;
+}
+
+String* Game::getLastMoves(uint8_t index) {
+    return _lastMoves[index];
+}
+
+uint8_t Game::getCountMovesInHistory() {
+    return _movesInHistory;
+}
+
+bool Game::putUserMovement(String move) {
+    if( _gameState != GAME_WAITING_USER_MOVE ) return false;
+
+    if( _GameSettings.getHumanColor() == G_HUMAN_COLOR_WHITE ) {
+        _addMove(move, 0);
+    } else {
+        _addMove(move, 1);
+    }
+    _gameState = GAME_AI_THINKING;
+    _gameChangedCallback();
+    String aiMove = _RestController.userMove(move);
+    if( move != NULL && move != "" ) {
+        if( _GameSettings.getHumanColor() == G_HUMAN_COLOR_WHITE ) {
+            _addMove(aiMove, 1);
+        } else {
+            _addMove(aiMove, 0);
+        }
+        _gameChangedCallback();
+        _AImoveCallback(aiMove);
+        _gameState = GAME_WAITING_USER_MOVE;
+        _gameChangedCallback();
+
+        return true;
+    }
+    _gameState = GAME_WAITING_USER_MOVE;
+    _gameChangedCallback();
+
+    return false;
 }
