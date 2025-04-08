@@ -13,13 +13,12 @@ class RestController {
     private:
         NetworkClient _client;
         HTTPClient _http;
-
-        // TODO make this configurable
-        String _AIServerName = "http://192.168.86.100:8081";
+        String _AIServer;
 
         DynamicJsonDocument _readResponse(String response);
     public:
         RestController();
+        void setAIServer(String AIServer);
         String initGame();
         String userMove(String move);
 };

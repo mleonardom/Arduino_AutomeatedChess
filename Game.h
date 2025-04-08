@@ -19,6 +19,7 @@ class Game {
         std::function<void(String)> _AImoveCallback;
 
         uint8_t _movesInHistory;
+        bool _isValidMovement = true;
         String _lastMoves[5][2] = {
             {"",""},
             {"",""},
@@ -40,6 +41,7 @@ class Game {
         void setBlackTimeoutCallback(std::function<void()> blackTimeoutCallback);
         void setAIMoveCallback(std::function<void(String)> AImoveCallback);
         uint8_t getGameState();
+        void setAIServer(String AIServer);
         void restart();
         void pause();
         void start();

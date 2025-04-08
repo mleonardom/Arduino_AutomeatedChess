@@ -1,4 +1,5 @@
 #include "Configs.h"
+#include <Preferences.h>
 
 #include "SoundController.h"
 #include "WifiController.h"
@@ -43,6 +44,7 @@ unsigned long buttonCurTime;
 unsigned long buttonLastLoop = 0;
 unsigned int buttonLoopInterval = 400;
 
+Preferences preferences;
 WiFiController _WiFiController;
 SoundController _SoundController;
 MultiButtonsController _MultiButtonsController(BUTTONS_PIN, btnCount, voltageRanges, 4095);
@@ -53,6 +55,8 @@ DisplaySSD1306Controller _DisplayController;
 // Game
 Game _Game;
 
+String AIServer = "";
+
 void setup() {
 
     Serial.begin(115200);
@@ -61,6 +65,7 @@ void setup() {
     pinMode(BUTTON1_PIN, INPUT);
     pinMode(BUTTON2_PIN, INPUT);
 
+    preferences.begin(MD_DEVICE_NAME);
     _SoundController.setup();
     _BoardController.setup();
 
@@ -77,7 +82,8 @@ void setup() {
 
     _WiFiController.setup();
     _WiFiController.setWebServerCallback(wiFiWebServerCallback);
-    bool resetWifi = _MultiButtonsController.isButtonPressed(1);
+    _WiFiController.setSaveConfigCallback(wiFiSaveConfigCallback);
+    bool resetWifi = digitalRead(BUTTON1_PIN) == HIGH && digitalRead(BUTTON2_PIN) == HIGH;
     bool wifiRes = _WiFiController.autoConnect(resetWifi);
 	delay(300);
 	if( wifiRes ) {
@@ -86,7 +92,11 @@ void setup() {
         _DisplayController.displayMessage("WiFi ERROR!");
 		Serial.println("WiFi ERROR!");
 	}
-
+    
+    if( AIServer == "" ) {
+        AIServer = preferences.getString("ai_server", "http://192.168.1.100:8081");
+    }
+    _Game.setAIServer(AIServer);
     _GameSettings.setParamsSettedCallback(gameParamsSettedCallback);
     _GameSettings.setMenuChangedCallback(gameMenuChangedCallback);
     _GameSettings.setRestartGameCallback(gameRestartGameCallback);
@@ -136,6 +146,7 @@ void makeUserMovement() {
         Serial.print("User moves to:");
         Serial.println(userMove);
     } else {
+        _SoundController.playErrorSound();
         Serial.println("User move invalid !!!!!");
     }
 }
@@ -162,7 +173,7 @@ void button2Pressed() {
         }
         makeUserMovement();
     } else {
-        _Game.startBlackClock();
+        _Game.startWhiteClock();
     }
 }
 
@@ -170,6 +181,13 @@ void wiFiWebServerCallback () {
     Serial.println("Entered WebServer mode");
     _SoundController.playLowSignalSound();
     _DisplayController.displayWebServerScreen();
+}
+
+void wiFiSaveConfigCallback() {
+    Serial.print("Save AIServer with:");
+    Serial.println(_WiFiController.getServerParam());
+    AIServer = _WiFiController.getServerParam();
+    preferences.putString("ai_server", AIServer);
 }
 
 void buttonPressCallback(uint buttonId) {
@@ -209,7 +227,7 @@ void gameMenuChangedCallback() {
 
 void prevButton(bool isLongPress) {
     if( !_Game.isInGame() && !_Game.isGameFinished() ) {
-        _SoundController.playPieceSound();
+        //_SoundController.playPieceSound();
         _GameSettings.prevButton(isLongPress);
     } else {
         Serial.println("Disabled Prev button");
@@ -218,7 +236,7 @@ void prevButton(bool isLongPress) {
 
 void nextButton(bool isLongPress) {
     if( !_Game.isInGame() && !_Game.isGameFinished() ) {
-        _SoundController.playPieceSound();
+        //_SoundController.playPieceSound();
         _GameSettings.nextButton(isLongPress);
     } else {
         Serial.println("Disabled Next button");

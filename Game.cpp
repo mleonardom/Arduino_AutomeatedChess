@@ -21,6 +21,10 @@ uint8_t Game::getGameState() {
     return _gameState;
 }
 
+void Game::setAIServer(String AIServer) {
+    _RestController.setAIServer(AIServer);
+}
+
 void Game::restart() {
     if( isInGame() ) {
         _cleanMoves();
@@ -166,7 +170,8 @@ bool Game::putUserMovement(String move) {
     _gameState = GAME_AI_THINKING;
     _gameChangedCallback();
     String aiMove = _RestController.userMove(move);
-    if( move != NULL && move != "" ) {
+    if( aiMove != NULL && aiMove != "" ) {
+        _isValidMovement = true;
         if( _GameSettings.getHumanColor() == G_HUMAN_COLOR_WHITE ) {
             _addMove(aiMove, 1);
         } else {
@@ -179,6 +184,12 @@ bool Game::putUserMovement(String move) {
 
         return true;
     }
+    if( _GameSettings.getHumanColor() == G_HUMAN_COLOR_WHITE ) {
+        _addMove("Inval", 1);
+    } else {
+        _addMove("Inval", 0);
+    }
+    _isValidMovement = false;
     _gameState = GAME_WAITING_USER_MOVE;
     _gameChangedCallback();
 

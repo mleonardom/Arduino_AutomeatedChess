@@ -83,6 +83,7 @@ void BoardController::calibrate() {
 }
 
 void BoardController::moveToString(String move) {
+    if( move == NULL || move == "" ) return;
     int departure_coord_X = move[0] - 'a' + 1;
     int departure_coord_Y = move[1] - '0';
     int arrival_coord_X = move[2] - 'a' + 1;
@@ -97,14 +98,13 @@ void BoardController::moveToString(String move) {
     Serial.print(arrival_coord_X);
     Serial.print(",");
     Serial.println(arrival_coord_Y);
-    delay(3000);
 }
 
 String BoardController::calculateUserMovement() {
     String wMovementsDummies[8] = {
         "d2d4",
         "c2c3",
-        "e2e3",
+        "e2e5", //Invalid movement
         "b2b3",
         "f2f3",
         "a2a3",
@@ -114,7 +114,7 @@ String BoardController::calculateUserMovement() {
     String bMovementsDummies[8] = {
         "d7d5",
         "c7c6",
-        "e7e6",
+        "e2e5", //Invalid movement
         "b7b6",
         "f7f6",
         "a7a6",

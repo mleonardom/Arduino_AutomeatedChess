@@ -3,10 +3,16 @@
 RestController::RestController() {
 }
 
+void RestController::setAIServer(String AIServer) {
+    _AIServer = AIServer;
+    Serial.print("AIServer setted to: ");
+    Serial.println(_AIServer);
+}
+
 String RestController::initGame() {
     String stockfish_move;
 
-    _http.begin(_client, _AIServerName+"/chess/game");
+    _http.begin(_client, _AIServer+"/chess/game");
     _http.addHeader("Content-Type", "application/json");
 
     JsonDocument body;
@@ -31,7 +37,7 @@ String RestController::initGame() {
 String RestController::userMove(String move) {
     String stockfish_move;
 
-    _http.begin(_client, _AIServerName+"/chess/game");
+    _http.begin(_client, _AIServer+"/chess/game");
     _http.addHeader("Content-Type", "application/json");
 
     JsonDocument body;

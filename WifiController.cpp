@@ -1,17 +1,25 @@
 #include "WifiController.h"
 
-WiFiController::WiFiController() {
-    _wifiManager.setConfigPortalTimeout(CONFIGURE_PORTAL_TIMEOUT);
+WiFiController::WiFiController() : _stockfishServerParameter("server", "RPI Server", "http://192.168.1.100:8081", 40) {
+    WiFiManager _wifiManager;
 }
 
 void WiFiController::setup() {
-    WiFiManager _wifiManager;
-
+    _wifiManager.setDebugOutput(true);
+    std::vector<const char *> menu = {"wifi","info","param","sep","restart","exit"};
+    _wifiManager.setMenu(menu);
+    _wifiManager.setConfigPortalTimeout(CONFIGURE_PORTAL_TIMEOUT);
+    Serial.println("Add WiFi Parameter");
+    _wifiManager.addParameter(&_stockfishServerParameter);
     _wifiManager.setConnectTimeout(30);
 }
 
 void WiFiController::setWebServerCallback(std::function<void()> webServerCallback) {
     _wifiManager.setWebServerCallback(webServerCallback);
+}
+
+void WiFiController::setSaveConfigCallback(std::function<void()> saveConfigCallback) {
+    _wifiManager.setSaveConfigCallback(saveConfigCallback);
 }
 
 bool WiFiController::autoConnect(bool reset) {
@@ -49,4 +57,8 @@ bool WiFiController::isConnected() {
 
 bool WiFiController::hasLostConnection() {
     return _wifiManager.getWLStatusString() == "WL_DISCONNECTED";
+}
+
+String WiFiController::getServerParam() {
+    return _stockfishServerParameter.getValue();
 }
